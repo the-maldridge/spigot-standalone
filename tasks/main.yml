@@ -1,0 +1,30 @@
+---
+- name: Create server prefix
+  file: path={{ prefixPath }} state=directory owner=minecraft group=minecraft mode=0755
+
+- name: Create server directory
+  file: path={{ prefixPath}}/{{ serverDir }} state=directory owner=minecraft group=minecraft mode=0755
+
+- name: Link Spigot binary
+  file: src=/opt/spigot/bin/spigot.jar dest={{ prefixPath}}/{{ serverDir }}/spigot.jar state=link
+
+- name: Configure Spigot
+  template: src=server.properties.j2 dest={{ prefixPath }}/{{ serverDir }}/server.properties owner=minecraft group=minecraft mode=0644
+
+- name: Agree to EULA
+  copy: src=eula.txt dest={{ prefixPath }}/{{ serverDir }}/eula.txt owner=minecraft group=minecraft mode=0644
+
+- name: Create start script
+  template: src=start.sh.j2 dest={{ prefixPath }}/{{ serverDir }}/start.sh owner=minecraft group=minecraft mode=0755
+
+- name: Create runit service directory
+  file: path=/etc/sv/{{ serverDir }} state=directory owner=root group=root mode=0755
+  when: ansible_lsb.id == "Void"
+
+- name: Create the runit service file
+  template: src=run.j2 dest=/etc/sv/{{ serverDir }}/run owner=root group=root mode=0755
+  when: ansible_lsb.id == "Void"
+
+- name: Enable the runit service
+  file: src=/etc/sv/{{ serverDir }} dest=/var/service/{{ serverDir }} state=link
+  when: ansible_lsb.id == "Void"

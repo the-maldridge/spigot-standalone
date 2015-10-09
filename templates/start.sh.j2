@@ -1,0 +1,6 @@
+#!/bin/bash
+{% if ansible_lsb.id == "Void" %}
+exec /usr/lib/jvm/openjdk/jre/bin/java -Xms{{ minMemory }} -Xmx{{ maxMemory }} -XX:MaxPermSize=128M -jar spigot.jar
+{% else %}
+java -Xms{{ minMemory }} -Xmx{{ maxMemory }} -XX:MaxPermSize=128M -jar spigot.jar
+{% endif %}
